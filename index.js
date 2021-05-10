@@ -120,7 +120,7 @@ const TelegramBot = require("node-telegram-bot-api");
   }, 15000);
 
   bot.onText(/jotaro/, (msg, match) => {
-    bot.sendMessage(msg.chat.id, `DIO`);
+    bot.sendMessage(msg.chat.id, `DIO`, { reply_to_message_id: msg.message_id });
   });
   // Matches "/echo [whatever]"
   bot.onText(/\/doge/, async (msg, match) => {
@@ -160,7 +160,7 @@ const TelegramBot = require("node-telegram-bot-api");
 
   bot.on("message", (msg) => {
     const chatId = msg.chat.id;
-    console.log(chatId);
+    
 
     // send a message to the chat acknowledging receipt of their message
     //  bot.sendMessage(chatId, 'Received your message');
