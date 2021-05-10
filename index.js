@@ -76,7 +76,7 @@ const TelegramBot = require("node-telegram-bot-api");
     let message = `▸ Market: ${market}\n`
     message = `${message}▸ Price: ${lastPriceNotified >= last_tick.close ? "↓" : "↑"} ${last_tick.close} USD\n`
     if (hour && oneHourChange.change) {
-      message = `${message}▸ ${ oneHourChange.up ? "↑" : "↓" } 1h,  ${oneHourChange.change}%`
+      message = `${message}▸ ${ oneHourChange.up ? "↑" : "↓" } 1h,  ${oneHourChange.change.toFixed(2)}%`
     }
 
     if (day) {
@@ -87,7 +87,7 @@ const TelegramBot = require("node-telegram-bot-api");
       }
     }
     if (week) {
-      const weekData = await getData({ market, interval: "1d" })
+      const weekData = await getData({ market, interval: "1w" })
       const weekChange = getChangesFromTicks(weekData)
       if (weekChange.change) {
         message = `${message} ${ weekChange.up ? "↑" : "↓" } 7d, ${weekChange.change.toFixed(2)}%`
