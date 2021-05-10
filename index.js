@@ -8,18 +8,16 @@ const TelegramBot = require("node-telegram-bot-api");
 
   // Create a bot that uses 'polling' to fetch new updates
   const bot = new TelegramBot(token, { polling: true });
-
   const chatsToNotify = ["-1001282532821"];
 
   let lastPriceNotified = null;
-  let lastOneHourChange = null;
-  let fullPrice = null;
 
   const binance = new Binance().options({
     APIKEY: process.env.BINANCE_API_KEY,
     APISECRET: process.env.BINANCE_SECRET_KEY,
   });
 
+  
   const extractVariablesFromTick = (tick) => {
     const [
       time,
@@ -54,7 +52,11 @@ const TelegramBot = require("node-telegram-bot-api");
 
   const getChangesFromTicks = (ticks) => {
 
+  
     const now = extractVariablesFromTick(ticks[ticks.length - 1])
+    if (ticks.length < 2) {
+      return { change: null}
+    }
     const before = extractVariablesFromTick(ticks[ticks.length - 2])
     const change =
     ((now.close - before.open) * 100) /
@@ -65,32 +67,38 @@ const TelegramBot = require("node-telegram-bot-api");
   const getMessage = async ({
     hour = true,
     day = false,
-    week = false
+    week = false,
+    market = 'DOGEUSDT'
   } = {}) => {
-    const oneHourData = await getData()
+    const oneHourData = await getData({ market })
     const oneHourChange = getChangesFromTicks(oneHourData)
     const last_tick = extractVariablesFromTick(oneHourData[oneHourData.length - 1])
-    let message = `▸ Price: ${lastPriceNotified >= last_tick.close ? "↓" : "↑"} ${last_tick.close} USD\n`
-    if (hour) {
-      message = `${message}▸ ${ oneHourChange.up ? "↑" : "↓" } 1h,  ${oneHourChange.change.toFixed(2)}%`
+    let message = `▸ Market: ${market}\n`
+    message = `${message}▸ Price: ${lastPriceNotified >= last_tick.close ? "↓" : "↑"} ${last_tick.close} USD\n`
+    if (hour && oneHourChange.change) {
+      message = `${message}▸ ${ oneHourChange.up ? "↑" : "↓" } 1h,  ${oneHourChange.change}%`
     }
 
     if (day) {
-      const dayData = await getData("1d")
+      const dayData = await getData({ market, interval: "1d" })
       const dayChange = getChangesFromTicks(dayData)
-      message = `${message} ${ dayChange.up ? "↑" : "↓" } 24h, ${dayChange.change.toFixed(2)}%`
+      if (dayChange.change) {
+        message = `${message} ${ dayChange.up ? "↑" : "↓" } 24h, ${dayChange.change.toFixed(2)}%`
+      }
     }
     if (week) {
-      const weekData = await getData("1w")
+      const weekData = await getData({ market, interval: "1d" })
       const weekChange = getChangesFromTicks(weekData)
-      message = `${message} ${ weekChange.up ? "↑" : "↓" } 7d, ${weekChange.change.toFixed(2)}%`
+      if (weekChange.change) {
+        message = `${message} ${ weekChange.up ? "↑" : "↓" } 7d, ${weekChange.change.toFixed(2)}%`
+      }
     }
     
     return { message, price: last_tick.close };
   };
 
-  const getData = async (interval = "1h") => {
-    const data = await binance.candlesticks("DOGEUSDT", interval, null, {
+  const getData = async ({ market = "DOGEUSDT", interval = "1h" } = {}) => {
+    const data = await binance.candlesticks(market, interval, null, {
       limit: 60,
     });
     return data
@@ -99,21 +107,17 @@ const TelegramBot = require("node-telegram-bot-api");
   setInterval(async () => {
     const { message, price } = await getMessage();
 
-    if (Math.abs(price - lastPriceNotified) > 0.01) {
+    if (Math.abs(price - lastPriceNotified) > 0.03) {
         if (lastPriceNotified) {
           chatsToNotify.forEach((chatId) => {
+            
+            bot.sendMessage(chatId, `Are ya winnin' son?`);
             bot.sendMessage(chatId, message);
           });
         }
         lastPriceNotified = price;
       }
-    // binance.prices('DOGEUSDT', (error, ticker) => {
-    //     if (!ticker) {
-    //         return
-    //     }
-    //     const { DOGEUSDT } = ticker
-    // });
-  }, 1500);
+  }, 15000);
 
   bot.onText(/jotaro/, (msg, match) => {
     bot.sendMessage(msg.chat.id, `DIO`);
@@ -121,12 +125,35 @@ const TelegramBot = require("node-telegram-bot-api");
   // Matches "/echo [whatever]"
   bot.onText(/\/doge/, async (msg, match) => {
     const chatId = msg.chat.id;
+
     const { message, price } = await getMessage({
       hour: true,
       day: true,
       week: true
     });
-    bot.sendMessage(chatId, message);
+    bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
+  });
+
+  bot.onText(/\/shiba/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const { message, price } = await getMessage({
+      hour: true,
+      day: true,
+      week: true,
+      market: 'SHIBUSDT'
+    });
+    bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
+  });
+
+  bot.onText(/\/cardano/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const { message, price } = await getMessage({
+      hour: true,
+      day: true,
+      week: true,
+      market: 'ADAUSDT'
+    });
+    bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
   });
 
   bot.on("polling_error", console.log);
