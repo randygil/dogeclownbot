@@ -17,6 +17,18 @@ const TelegramBot = require("node-telegram-bot-api");
     APISECRET: process.env.BINANCE_SECRET_KEY,
   });
 
+  const areYaWinningSon = (msg) => {
+    let chatId = msg 
+    if (typeof msg === "object") {
+      chatId = msg.chat.id
+    }
+    const photo = `./son.jpg`;
+    bot.sendPhoto(chatId, photo, {
+      caption: "?"
+    });
+  }
+  
+
   
   const extractVariablesFromTick = (tick) => {
     const [
@@ -111,7 +123,9 @@ const TelegramBot = require("node-telegram-bot-api");
         if (lastPriceNotified) {
           chatsToNotify.forEach((chatId) => {
             
-            bot.sendMessage(chatId, `Are ya winnin' son?`);
+            //bot.sendMessage(chatId, `Are ya winnin' son?`);
+            areYaWinningSon(chatId)
+
             bot.sendMessage(chatId, message);
           });
         }
@@ -122,6 +136,13 @@ const TelegramBot = require("node-telegram-bot-api");
   bot.onText(/jotaro/, (msg, match) => {
     bot.sendMessage(msg.chat.id, `DIO`, { reply_to_message_id: msg.message_id });
   });
+
+
+  bot.onText(/areyawinningson/, (msg, match) => {
+    areYaWinningSon(msg)
+  });
+
+  
   // Matches "/echo [whatever]"
   bot.onText(/\/doge/, async (msg, match) => {
     const chatId = msg.chat.id;
