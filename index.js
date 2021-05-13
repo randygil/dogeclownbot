@@ -8,7 +8,7 @@ const TelegramBot = require("node-telegram-bot-api");
 
   // Create a bot that uses 'polling' to fetch new updates
   const bot = new TelegramBot(token, { polling: true });
-  const chatsToNotify = ["-1001282532821"];
+  const chatsToNotify = ["-1001282532821", "-1001371860266"];
 
   let lastPriceNotified = null;
 
@@ -134,13 +134,13 @@ const TelegramBot = require("node-telegram-bot-api");
     }
   }, 15000);
 
-  bot.onText(/jotaro/, (msg, match) => {
+  bot.onText(/^jotaro/, (msg, match) => {
     bot.sendMessage(msg.chat.id, `DIO`, {
       reply_to_message_id: msg.message_id,
     });
   });
 
-  bot.onText(/ora/, (msg, match) => {
+  bot.onText(/^ora/, (msg, match) => {
     for (var i = 0; i < 5; i++) {
       setTimeout(function () {
         bot.sendMessage(msg.chat.id, `MUDA`, {
@@ -150,7 +150,7 @@ const TelegramBot = require("node-telegram-bot-api");
     }
   });
 
-  bot.onText(/areyawinningson/, (msg, match) => {
+  bot.onText(/^areyawinningson/, (msg, match) => {
     areYaWinningSon(msg);
   });
 
