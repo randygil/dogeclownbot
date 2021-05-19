@@ -125,7 +125,7 @@ const TelegramBot = require("node-telegram-bot-api");
       if (lastPriceNotified) {
         chatsToNotify.forEach((chatId) => {
           //bot.sendMessage(chatId, `Are ya winnin' son?`);
-          areYaWinningSon(chatId);
+          //areYaWinningSon(chatId);
 
           bot.sendMessage(chatId, message);
         });
@@ -141,6 +141,10 @@ const TelegramBot = require("node-telegram-bot-api");
   });
 
   bot.onText(/^ora/, (msg, match) => {
+      bot.sendMessage(msg.chat.id, `Mamate un guevo pues`, {
+        reply_to_message_id: msg.message_id,
+      });
+    return
     for (var i = 0; i < 5; i++) {
       setTimeout(function () {
         bot.sendMessage(msg.chat.id, `MUDA`, {
@@ -152,6 +156,12 @@ const TelegramBot = require("node-telegram-bot-api");
 
   bot.onText(/^areyawinningson/, (msg, match) => {
     areYaWinningSon(msg);
+  });
+
+  bot.onText(/^elon/, (msg, match) => {
+    const photo = `./elon.png`;
+    
+    bot.sendPhoto(msg.chat.id, photo);
   });
 
   // Matches "/echo [whatever]"
