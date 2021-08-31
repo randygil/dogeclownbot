@@ -1,6 +1,7 @@
 require("dotenv").config();
 const Binance = require("node-binance-api");
 const TelegramBot = require("node-telegram-bot-api");
+const checkForCryptoCars = require("./checkForCryptoCars");
 
 (async (_) => {
   // replace the value below with the Telegram token you receive from @BotFather
@@ -141,10 +142,10 @@ const TelegramBot = require("node-telegram-bot-api");
   });
 
   bot.onText(/^ora/, (msg, match) => {
-      bot.sendMessage(msg.chat.id, `Mamate un guevo pues`, {
-        reply_to_message_id: msg.message_id,
-      });
-    return
+    bot.sendMessage(msg.chat.id, `Mamate un guevo pues`, {
+      reply_to_message_id: msg.message_id,
+    });
+    return;
     for (var i = 0; i < 5; i++) {
       setTimeout(function () {
         bot.sendMessage(msg.chat.id, `MUDA`, {
@@ -160,7 +161,7 @@ const TelegramBot = require("node-telegram-bot-api");
 
   bot.onText(/^elon/, (msg, match) => {
     const photo = `./elon.png`;
-    
+
     bot.sendPhoto(msg.chat.id, photo);
   });
 
@@ -197,6 +198,17 @@ const TelegramBot = require("node-telegram-bot-api");
     });
     bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
   });
+
+  setInterval(async () => {
+    try {
+      const result = await checkForCryptoCars();
+      if (!result[0].includes("Comming Soon")) {
+        chatsToNotify.forEach((chatId) => {
+          bot.sendMessage(chatId, `Se ha listado el token de Cryptocars`);
+        });
+      }
+    } catch (error) {}
+  }, 1000 * 60);
 
   bot.on("polling_error", console.log);
 

@@ -5,6 +5,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.10",
     "dotenv": "^9.0.0",
     "node-binance-api": "^0.12.5",
     "node-telegram-bot-api": "^0.53.0",
