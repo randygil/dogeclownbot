@@ -1,7 +1,6 @@
 require("dotenv").config();
 const Binance = require("node-binance-api");
 const TelegramBot = require("node-telegram-bot-api");
-const checkForCryptoCars = require("./checkForCryptoCars");
 
 (async (_) => {
   // replace the value below with the Telegram token you receive from @BotFather
@@ -18,16 +17,7 @@ const checkForCryptoCars = require("./checkForCryptoCars");
     APISECRET: process.env.BINANCE_SECRET_KEY,
   });
 
-  const areYaWinningSon = (msg) => {
-    let chatId = msg;
-    if (typeof msg === "object") {
-      chatId = msg.chat.id;
-    }
-    const photo = `./son.jpg`;
-    bot.sendPhoto(chatId, photo, {
-      caption: "?",
-    });
-  };
+
 
   const extractVariablesFromTick = (tick) => {
     const [
@@ -135,37 +125,10 @@ const checkForCryptoCars = require("./checkForCryptoCars");
     }
   }, 15000);
 
-  bot.onText(/^jotaro/, (msg, match) => {
-    bot.sendMessage(msg.chat.id, `DIO`, {
-      reply_to_message_id: msg.message_id,
-    });
-  });
 
-  bot.onText(/^ora/, (msg, match) => {
-    bot.sendMessage(msg.chat.id, `Mamate un guevo pues`, {
-      reply_to_message_id: msg.message_id,
-    });
-    return;
-    for (var i = 0; i < 5; i++) {
-      setTimeout(function () {
-        bot.sendMessage(msg.chat.id, `MUDA`, {
-          reply_to_message_id: msg.message_id,
-        });
-      }, 500 * i);
-    }
-  });
 
-  bot.onText(/^areyawinningson/, (msg, match) => {
-    areYaWinningSon(msg);
-  });
+ 
 
-  bot.onText(/^elon/, (msg, match) => {
-    const photo = `./elon.png`;
-
-    bot.sendPhoto(msg.chat.id, photo);
-  });
-
-  // Matches "/echo [whatever]"
   bot.onText(/\/doge/, async (msg, match) => {
     const chatId = msg.chat.id;
 
@@ -199,16 +162,6 @@ const checkForCryptoCars = require("./checkForCryptoCars");
     bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
   });
 
-  setInterval(async () => {
-    try {
-      const result = await checkForCryptoCars();
-      if (!result[0].includes("Comming Soon")) {
-        chatsToNotify.forEach((chatId) => {
-          bot.sendMessage(chatId, `Se ha listado el token de Cryptocars`);
-        });
-      }
-    } catch (error) {}
-  }, 1000 * 60);
 
   bot.on("polling_error", console.log);
 
@@ -219,7 +172,7 @@ const checkForCryptoCars = require("./checkForCryptoCars");
     //  bot.sendMessage(chatId, 'Received your message');
   });
 
-  const pvu = require('./pvu')
-  pvu(bot)
+  require('./pvu')(bot)
+  require('./coins')(bot)
 
 })();
