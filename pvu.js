@@ -258,7 +258,7 @@ module.exports = async (bot) => {
     plants.forEach((plant,index) => {
       const { LE, hours, farmHours, cycles, cost } = plant
       if (plant.type !== 'sunflower') {
-       msj+=`LE: ${LE}/${hours} | Ciclos: ${cycles} | Ganancia: ${(LE*cycles)-cost} | Restaba: ${farmHours} horas\n`
+       msj+=`LE: ${LE}/${hours} (${(LE/hours).toFixed(2)}/h) | Ciclos: ${cycles} | Ganancia: ${(LE*cycles)-cost} | Restaba: ${farmHours} horas\n`
       }
     })
     // Sum all LE from plants of type sunflower
