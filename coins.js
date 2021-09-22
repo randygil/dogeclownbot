@@ -34,4 +34,29 @@ module.exports = async (bot) => {
       bot.sendMessage(chatId, `${coin} is not a valid token`);
     }
   });
+
+  bot.onText(/\/dcalc/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const coin = match.input.split(" ")[1];
+    const amount = match.input.split(" ")[2];
+    const tokenInfo = getTokenBySymbol(coin);
+    if (tokenInfo) {
+      const { data: coinData, token } = tokenInfo;
+      const {
+        data: { data },
+      } = await axios.get(
+        `https://api.pancakeswap.info/api/v2/tokens/${token}`
+      );
+
+      const calculated = parseFloat(amount) * parseFloat(data.price);
+      bot.sendMessage(
+        chatId,
+        `${amount} ${coinData.symbol} is worth ${calculated.toFixed(2)} USD`
+      );
+    } else {
+      bot.sendMessage(chatId, `${coin} is not a valid token`);
+    }
+  });
+
+
 };
