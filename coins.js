@@ -1,6 +1,6 @@
 const coins = require("./data/pancakecoins.json");
 const axios = require("axios");
-
+const fs = require("fs");
 function getTokenBySymbol(symbol) {
   // loop over keys in coins object and return key if symbol matches the symbol property
   for (let key in coins) {
@@ -10,6 +10,15 @@ function getTokenBySymbol(symbol) {
       }
     }
   }
+}
+
+function addTokenToJson(data) {
+  const { token, symbol, name } = data;
+  coins[token] = {
+    symbol,
+    name
+  }
+  fs.writeFileSync("./data/pancakecoins.json", JSON.stringify(coins, null, 2));
 }
 
 module.exports = async (bot) => {
@@ -45,6 +54,36 @@ module.exports = async (bot) => {
       bot.sendMessage(chatId, `${coin} is not a valid token`);
     }
   });
+
+  bot.onText(/\/add_token/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const args = match.input.split(" ")[1] || "";
+    if (!args || args.split("|").length !== 3) {
+      bot.sendMessage(chatId, "Invalid syntax. Try /add_token <token>|<symbol>|<name>");
+      return
+    }
+    const args2 = args.split("|");
+    console.log(args2)
+    const token = args2[0];
+    const symbol = args2[1];
+    const name = args2[2];
+
+
+    // Check if token if 0x
+    if (token.substring(0, 2) !== "0x") {
+      bot.sendMessage(chatId, "Token must start with 0x");
+      return;
+    }
+    bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
+   
+      if (((data.status == "creator") || (data.status == "administrator")) || process.env.ADMIN_ID == msg.from.id) {
+        addTokenToJson({ token, symbol, name });
+        bot.sendMessage(chatId, `${token} added to list of tokens`);
+      }else{
+        bot.sendMessage(chatId, "Sáquese");
+      }
+    });
+})
 
 
 };
