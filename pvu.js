@@ -6,7 +6,7 @@ let pvuPrice = {
   change: 0
 }
  
-let LeToPVU = 150;
+let LeToPVU = 500;
 
 setTimeout(updatePrice, 5000)
 const axios = require('axios');
