@@ -38,12 +38,12 @@ module.exports = async (bot) => {
 
       let message = `${coinData.name} (${
         coinData.symbol
-      }) is currently trading at ${parseFloat(data.price).toFixed(2)} USD`
+      }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`
 
       const calculated = parseFloat(amount) * parseFloat(data.price);
       // If amount is number, calculate
       if (amount && !isNaN(amount)) {
-        message+=`\n${amount} ${coinData.symbol} is worth ${calculated.toFixed(2)} USD`
+        message+=`\n${amount} ${coinData.symbol} is worth ${calculated.toFixed(4)} USD`
       }
 
       bot.sendMessage(
