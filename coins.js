@@ -20,6 +20,25 @@ function addTokenToJson(data) {
   };
   fs.writeFileSync("./data/pancakecoins.json", JSON.stringify(coins, null, 2));
 }
+async function getPriceText(tokenInfo, amount) {
+  const { data: coinData, token } = tokenInfo;
+  const {
+    data: { data },
+  } = await axios.get(`https://api.pancakeswap.info/api/v2/tokens/${token}`);
+
+  let message = `${coinData.name} (${
+    coinData.symbol
+  }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
+
+  const calculated = parseFloat(amount) * parseFloat(data.price);
+  // If amount is number, calculate
+  if (amount && !isNaN(amount)) {
+    message += `\n${amount} ${coinData.symbol} is worth ${calculated.toFixed(
+      4
+    )} USD`;
+  }
+  return message;
+}
 
 module.exports = async (bot) => {
   bot.onText(/\/d/, async (msg, match) => {
@@ -27,6 +46,9 @@ module.exports = async (bot) => {
     const coin = match.input.split(" ")[1];
     const amount = match.input.split(" ")[2];
 
+    if (!coin) {
+      return;
+    }
     const tokenInfo = getTokenBySymbol(coin);
     if (tokenInfo) {
       const { data: coinData, token } = tokenInfo;
@@ -49,6 +71,7 @@ module.exports = async (bot) => {
       }
 
       bot.sendMessage(chatId, message);
+      bot.deleteMessage(chatId, msg.message_id);
     } else {
       bot.sendMessage(chatId, `${coin} is not a valid token`);
     }
@@ -59,12 +82,13 @@ module.exports = async (bot) => {
     const chatId = msg.chat.id;
     let expression = match.input.split(" ")[1].replace(" ", "");
 
-
     // Check if expression is valid
     if (expression) {
       try {
         const result = eval(expression);
-        bot.sendMessage(chatId, `${expression} = ${result}`,  { reply_to_message_id: msg.message_id });
+        bot.sendMessage(chatId, `${expression} = ${result}`, {
+          reply_to_message_id: msg.message_id,
+        });
       } catch (error) {
         bot.sendMessage(chatId, `${expression} is not a valid expression`);
       }
@@ -79,33 +103,62 @@ module.exports = async (bot) => {
     const coin = match.input.split(" ")[0].replace("/", "");
     const amount = match.input.split(" ")[1];
     const tokenInfo = getTokenBySymbol(coin);
+    if (!coin) {
+      return;
+    }
     if (tokenInfo) {
-      console.log('yes yes', tokenInfo)
-      const { data: coinData, token } = tokenInfo;
-      const {
-        data: { data },
-      } = await axios.get(
-        `https://api.pancakeswap.info/api/v2/tokens/${token}`
-      );
-
-      let message = `${coinData.name} (${
-        coinData.symbol
-      }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
-
-      const calculated = parseFloat(amount) * parseFloat(data.price);
-      // If amount is number, calculate
-      if (amount && !isNaN(amount)) {
-        message += `\n${amount} ${
-          coinData.symbol
-        } is worth ${calculated.toFixed(4)} USD`;
-      }
-      bot.sendMessage(chatId, message);
-
+      const priceText = await getPriceText(tokenInfo, amount);
+      const opts = {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🔄 Refresh 🔄",
+                callback_data: `refresh:${coin}:${amount}`,
+              },
+            ],
+          ],
+        },
+      };
+      bot.sendMessage(chatId, priceText, opts);
+      bot.deleteMessage(chatId, msg.message_id);
     } else {
-    //  bot.sendMessage(chatId, `${coin} is not a valid token`);
+      //  bot.sendMessage(chatId, `${coin} is not a valid token`);
     }
   });
 
+  bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
+    const action = callbackQuery.data;
+    const msg = callbackQuery.message;
+
+    // Check if action is refresh
+    if (action.startsWith("refresh:")) {
+      const coin = action.split(":")[1];
+      const amount = action.split(":")[2];
+      const tokenInfo = getTokenBySymbol(coin);
+      if (tokenInfo) {
+        const priceText = await getPriceText(tokenInfo, amount);
+        const opts = {
+          chat_id: msg.chat.id,
+          message_id: msg.message_id,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "🔄 Refresh 🔄",
+                  callback_data: `refresh:${coin}:${amount}`,
+                },
+              ],
+            ],
+          },
+        };
+        // If priceText is the same as the message text, don't send a new message
+        if (priceText !== msg.text) {
+          bot.editMessageText(priceText, opts);
+        }
+      }
+    }
+  });
 
   bot.onText(/\/add_token/, async (msg, match) => {
     const chatId = msg.chat.id;
@@ -118,7 +171,6 @@ module.exports = async (bot) => {
       return;
     }
     const args2 = args.split("|");
-    console.log(args2);
     const token = args2[0];
     const symbol = args2[1];
     const name = args2[2];
