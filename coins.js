@@ -57,7 +57,8 @@ module.exports = async (bot) => {
   // Add command to calculate arithmetical expressions
   bot.onText(/\/a/, async (msg, match) => {
     const chatId = msg.chat.id;
-    const expression = match.input.split(" ")[1];
+    let expression = match.input.split(" ")[1].replace(" ", "");
+
 
     // Check if expression is valid
     if (expression) {
