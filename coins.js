@@ -16,8 +16,8 @@ function addTokenToJson(data) {
   const { token, symbol, name } = data;
   coins[token] = {
     symbol,
-    name
-  }
+    name,
+  };
   fs.writeFileSync("./data/pancakecoins.json", JSON.stringify(coins, null, 2));
 }
 
@@ -38,20 +38,37 @@ module.exports = async (bot) => {
 
       let message = `${coinData.name} (${
         coinData.symbol
-      }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`
+      }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
 
       const calculated = parseFloat(amount) * parseFloat(data.price);
       // If amount is number, calculate
       if (amount && !isNaN(amount)) {
-        message+=`\n${amount} ${coinData.symbol} is worth ${calculated.toFixed(4)} USD`
+        message += `\n${amount} ${
+          coinData.symbol
+        } is worth ${calculated.toFixed(4)} USD`;
       }
 
-      bot.sendMessage(
-        chatId,
-        message
-      );
+      bot.sendMessage(chatId, message);
     } else {
       bot.sendMessage(chatId, `${coin} is not a valid token`);
+    }
+  });
+
+  // Add command to calculate arithmetical expressions
+  bot.onText(/\/a/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const expression = match.input.split(" ")[1];
+
+    // Check if expression is valid
+    if (expression) {
+      try {
+        const result = eval(expression);
+        bot.sendMessage(chatId, `${expression} = ${result}`);
+      } catch (error) {
+        bot.sendMessage(chatId, `${expression} is not a valid expression`);
+      }
+    } else {
+      bot.sendMessage(chatId, `${expression} is not a valid expression`);
     }
   });
 
@@ -59,31 +76,34 @@ module.exports = async (bot) => {
     const chatId = msg.chat.id;
     const args = match.input.split(" ")[1] || "";
     if (!args || args.split("|").length !== 3) {
-      bot.sendMessage(chatId, "Invalid syntax. Try /add_token <token>|<symbol>|<name>");
-      return
+      bot.sendMessage(
+        chatId,
+        "Invalid syntax. Try /add_token <token>|<symbol>|<name>"
+      );
+      return;
     }
     const args2 = args.split("|");
-    console.log(args2)
+    console.log(args2);
     const token = args2[0];
     const symbol = args2[1];
     const name = args2[2];
-
 
     // Check if token if 0x
     if (token.substring(0, 2) !== "0x") {
       bot.sendMessage(chatId, "Token must start with 0x");
       return;
     }
-    bot.getChatMember(msg.chat.id, msg.from.id).then(function(data) {
-   
-      if (((data.status == "creator") || (data.status == "administrator")) || process.env.ADMIN_ID == msg.from.id) {
+    bot.getChatMember(msg.chat.id, msg.from.id).then(function (data) {
+      if (
+        data.status == "creator" ||
+        data.status == "administrator" ||
+        process.env.ADMIN_ID == msg.from.id
+      ) {
         addTokenToJson({ token, symbol, name });
         bot.sendMessage(chatId, `${token} added to list of tokens`);
-      }else{
+      } else {
         bot.sendMessage(chatId, "Sáquese");
       }
     });
-})
-
-
+  });
 };
