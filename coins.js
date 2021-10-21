@@ -73,6 +73,40 @@ module.exports = async (bot) => {
     }
   });
 
+  // on any text
+  bot.onText(/^\/\w+/g, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const coin = match.input.split(" ")[0].replace("/", "");
+    const amount = match.input.split(" ")[1];
+    const tokenInfo = getTokenBySymbol(coin);
+    if (tokenInfo) {
+      console.log('yes yes', tokenInfo)
+      const { data: coinData, token } = tokenInfo;
+      const {
+        data: { data },
+      } = await axios.get(
+        `https://api.pancakeswap.info/api/v2/tokens/${token}`
+      );
+
+      let message = `${coinData.name} (${
+        coinData.symbol
+      }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
+
+      const calculated = parseFloat(amount) * parseFloat(data.price);
+      // If amount is number, calculate
+      if (amount && !isNaN(amount)) {
+        message += `\n${amount} ${
+          coinData.symbol
+        } is worth ${calculated.toFixed(4)} USD`;
+      }
+      bot.sendMessage(chatId, message);
+
+    } else {
+    //  bot.sendMessage(chatId, `${coin} is not a valid token`);
+    }
+  });
+
+
   bot.onText(/\/add_token/, async (msg, match) => {
     const chatId = msg.chat.id;
     const args = match.input.split(" ")[1] || "";
