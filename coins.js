@@ -63,7 +63,7 @@ module.exports = async (bot) => {
     if (expression) {
       try {
         const result = eval(expression);
-        bot.sendMessage(chatId, `${expression} = ${result}`);
+        bot.sendMessage(chatId, `${expression} = ${result}`,  { reply_to_message_id: msg.message_id });
       } catch (error) {
         bot.sendMessage(chatId, `${expression} is not a valid expression`);
       }
