@@ -51,6 +51,18 @@ module.exports = async (bot) => {
     }
     const tokenInfo = getTokenBySymbol(coin);
     if (tokenInfo) {
+      const opts = {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🔄 Refresh 🔄",
+                callback_data: `refresh:${coin}:${amount}`,
+              },
+            ],
+          ],
+        },
+      };
       const { data: coinData, token } = tokenInfo;
       const {
         data: { data },
@@ -70,7 +82,7 @@ module.exports = async (bot) => {
         } is worth ${calculated.toFixed(4)} USD`;
       }
 
-      bot.sendMessage(chatId, message);
+      bot.sendMessage(chatId, message, opts);
       bot.deleteMessage(chatId, msg.message_id);
     } else {
       bot.sendMessage(chatId, `${coin} is not a valid token`);
