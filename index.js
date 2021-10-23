@@ -169,7 +169,7 @@ const TelegramBot = require("node-telegram-bot-api");
   }
 
   // Command to translate text
-  bot.onText(/\/trans/, async (msg, match) => {
+  bot.onText(/\/traduce/, async (msg, match) => {
     const chatId = msg.chat.id;
     const resp = match.input.split(' ')[1];
     if (!resp) {
