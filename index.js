@@ -17,8 +17,6 @@ const TelegramBot = require("node-telegram-bot-api");
     APISECRET: process.env.BINANCE_SECRET_KEY,
   });
 
-
-
   const extractVariablesFromTick = (tick) => {
     const [
       time,
@@ -125,10 +123,6 @@ const TelegramBot = require("node-telegram-bot-api");
     }
   }, 15000);
 
-
-
- 
-
   bot.onText(/\/doge/, async (msg, match) => {
     const chatId = msg.chat.id;
 
@@ -162,6 +156,33 @@ const TelegramBot = require("node-telegram-bot-api");
     bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
   });
 
+  const util = require("util");
+  const exec = util.promisify(require("child_process").exec);
+  async function translate(args) {
+    // Execute trans shell command
+    try {
+      const { stdout, stderr } = await exec(`trans ${args}`);
+      return stdout;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Command to translate text
+  bot.onText(/\/trans (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const resp = match[1];
+
+    try {
+      const res = await translate(resp);
+      bot.sendMessage(chatId, res, { reply_to_message_id: msg.message_id });
+    } catch (error) {
+      console.error(error);
+      bot.sendMessage(chatId, `Algo salió mal :()`, {
+        reply_to_message_id: msg.message_id,
+      });
+    }
+  });
 
   bot.on("polling_error", console.log);
 
@@ -172,7 +193,6 @@ const TelegramBot = require("node-telegram-bot-api");
     //  bot.sendMessage(chatId, 'Received your message');
   });
 
-  require('./pvu')(bot)
-  require('./coins')(bot)
-
+  require("./pvu")(bot);
+  require("./coins")(bot);
 })();
