@@ -178,7 +178,7 @@ const TelegramBot = require("node-telegram-bot-api");
   // Command to translate text
   bot.onText(/\/traduce (.+)/, async (msg, match) => {
     const chatId = msg.chat.id;
-    const resp = match[1];
+    const resp = match.slice(1).join(" ")
 
     try {
       const res = await translate(resp);
