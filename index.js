@@ -161,7 +161,7 @@ const TelegramBot = require("node-telegram-bot-api");
   async function translate(args) {
     // Execute trans shell command
     try {
-      const { stdout, stderr } = await exec(`trans ${args}`);
+      const { stdout, stderr } = await exec(`trans -brief ${args}`);
       return stdout;
     } catch (error) {
       throw error;
@@ -169,10 +169,14 @@ const TelegramBot = require("node-telegram-bot-api");
   }
 
   // Command to translate text
-  bot.onText(/\/trans (.+)/, async (msg, match) => {
+  bot.onText(/\/trans/, async (msg, match) => {
     const chatId = msg.chat.id;
     const resp = match[1];
-
+    console.log(resp)
+    if (!resp) {
+      bot.sendMessage(chatId,`Docs: https://github.com/soimort/translate-shell`)
+      return
+    }
     try {
       const res = await translate(resp);
       bot.sendMessage(chatId, res, { reply_to_message_id: msg.message_id });
