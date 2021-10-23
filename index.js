@@ -171,8 +171,7 @@ const TelegramBot = require("node-telegram-bot-api");
   // Command to translate text
   bot.onText(/\/trans/, async (msg, match) => {
     const chatId = msg.chat.id;
-    const resp = match[1];
-    console.log(resp)
+    const resp = match.input.split(' ')[1];
     if (!resp) {
       bot.sendMessage(chatId,`Docs: https://github.com/soimort/translate-shell`)
       return
