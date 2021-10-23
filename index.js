@@ -167,7 +167,7 @@ const TelegramBot = require("node-telegram-bot-api");
   async function translate(args) {
       // Execute trans shell command
       try {
-          const { stdout, stderr } = await exec(`trans ${args}`);
+          const { stdout, stderr } = await exec(`trans -brief ${args}`);
            return stdout
       } catch(error) {
           throw new error
