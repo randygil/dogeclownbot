@@ -59,6 +59,10 @@ module.exports = async (bot) => {
                 text: "🔄 Refresh 🔄",
                 callback_data: `refresh:${coin}:${amount}`,
               },
+              {
+                text: "📈 Charts 📈",
+                url: `https://poocoin.app/tokens/${tokenInfo.token}`
+              }
             ],
           ],
         },
@@ -128,7 +132,12 @@ module.exports = async (bot) => {
                 text: "🔄 Refresh 🔄",
                 callback_data: `refresh:${coin}:${amount}`,
               },
+              {
+                text: "📈 Charts 📈",
+                url: `https://poocoin.app/tokens/${tokenInfo.token}`
+              }
             ],
+            
           ],
         },
       };
@@ -160,6 +169,10 @@ module.exports = async (bot) => {
                   text: "🔄 Refresh 🔄",
                   callback_data: `refresh:${coin}:${amount}`,
                 },
+                {
+                  text: "📈 Charts 📈",
+                  url: `https://poocoin.app/tokens/${tokenInfo.token}`
+                }
               ],
             ],
           },
