@@ -22,14 +22,24 @@ function addTokenToJson(data) {
 }
 async function getPriceText(tokenInfo, amount) {
   const { data: coinData, token } = tokenInfo;
+  const res = await axios.get(
+    `https://api.pancakeswap.info/api/v2/tokens/${token}`
+  );
   const {
-    data: { data },
-  } = await axios.get(`https://api.pancakeswap.info/api/v2/tokens/${token}`);
+    data: { data, updated_at },
+  } = res;
+
+  const updated = new Date(updated_at);
+  const now = new Date();
+  const diff = now - updated;
+  const diffMinutes = Math.round(diff / 60000);
 
   let message = `${coinData.name} (${
     coinData.symbol
   }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
-
+  if (diffMinutes > 0) {
+    message = `[~${diffMinutes} minutes] ${message}`;
+  }
   const calculated = parseFloat(amount) * parseFloat(data.price);
   // If amount is number, calculate
   if (amount && !isNaN(amount)) {
@@ -61,23 +71,31 @@ module.exports = async (bot) => {
               },
               {
                 text: "📈 Charts 📈",
-                url: `https://poocoin.app/tokens/${tokenInfo.token}`
-              }
+                url: `https://poocoin.app/tokens/${tokenInfo.token}`,
+              },
             ],
           ],
         },
       };
       const { data: coinData, token } = tokenInfo;
-      const {
-        data: { data },
-      } = await axios.get(
+      const res = await axios.get(
         `https://api.pancakeswap.info/api/v2/tokens/${token}`
       );
+      const {
+        data: { data, updated_at },
+      } = res;
 
-      let message = `${coinData.name} (${
+      const updated = new Date(updated_at);
+      const now = new Date();
+      const diff = now - updated;
+      const diffMinutes = Math.round(diff / 60000);
+
+      let message = ` ${coinData.name} (${
         coinData.symbol
       }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
-
+      if (diffMinutes > 0) {
+        message = `[~${diffMinutes} minutes] ${message}`;
+      }
       const calculated = parseFloat(amount) * parseFloat(data.price);
       // If amount is number, calculate
       if (amount && !isNaN(amount)) {
@@ -134,10 +152,9 @@ module.exports = async (bot) => {
               },
               {
                 text: "📈 Charts 📈",
-                url: `https://poocoin.app/tokens/${tokenInfo.token}`
-              }
+                url: `https://poocoin.app/tokens/${tokenInfo.token}`,
+              },
             ],
-            
           ],
         },
       };
@@ -171,8 +188,8 @@ module.exports = async (bot) => {
                 },
                 {
                   text: "📈 Charts 📈",
-                  url: `https://poocoin.app/tokens/${tokenInfo.token}`
-                }
+                  url: `https://poocoin.app/tokens/${tokenInfo.token}`,
+                },
               ],
             ],
           },
