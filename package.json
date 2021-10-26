@@ -10,7 +10,8 @@
     "dotenv": "^9.0.0",
     "node-binance-api": "^0.12.5",
     "node-telegram-bot-api": "^0.53.0",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "web3": "^1.6.0"
   },
   "scripts": {
     "serve": "nodemon index.js"

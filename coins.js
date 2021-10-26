@@ -1,3 +1,4 @@
+const { getPrice } = require("./tokenInfo");
 const coins = require("./data/pancakecoins.json");
 const axios = require("axios");
 const fs = require("fs");
@@ -22,25 +23,13 @@ function addTokenToJson(data) {
 }
 async function getPriceText(tokenInfo, amount) {
   const { data: coinData, token } = tokenInfo;
-  const res = await axios.get(
-    `https://api.pancakeswap.info/api/v2/tokens/${token}`
-  );
-  const {
-    data: { data, updated_at },
-  } = res;
 
-  const updated = new Date(updated_at);
-  const now = new Date();
-  const diff = now - updated;
-  const diffMinutes = Math.round(diff / 60000);
-
+  const { usd, bnb } = await getPrice(token);
+  
   let message = `${coinData.name} (${
     coinData.symbol
-  }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
-  if (diffMinutes > 0) {
-    message = `[~${diffMinutes} minutes] ${message}`;
-  }
-  const calculated = parseFloat(amount) * parseFloat(data.price);
+  }) is currently trading at ${parseFloat(usd).toFixed(4)} USD`;
+  const calculated = parseFloat(amount) * parseFloat(usd);
   // If amount is number, calculate
   if (amount && !isNaN(amount)) {
     message += `\n${amount} ${coinData.symbol} is worth ${calculated.toFixed(
@@ -77,33 +66,7 @@ module.exports = async (bot) => {
           ],
         },
       };
-      const { data: coinData, token } = tokenInfo;
-      const res = await axios.get(
-        `https://api.pancakeswap.info/api/v2/tokens/${token}`
-      );
-      const {
-        data: { data, updated_at },
-      } = res;
-
-      const updated = new Date(updated_at);
-      const now = new Date();
-      const diff = now - updated;
-      const diffMinutes = Math.round(diff / 60000);
-
-      let message = ` ${coinData.name} (${
-        coinData.symbol
-      }) is currently trading at ${parseFloat(data.price).toFixed(4)} USD`;
-      if (diffMinutes > 0) {
-        message = `[~${diffMinutes} minutes] ${message}`;
-      }
-      const calculated = parseFloat(amount) * parseFloat(data.price);
-      // If amount is number, calculate
-      if (amount && !isNaN(amount)) {
-        message += `\n${amount} ${
-          coinData.symbol
-        } is worth ${calculated.toFixed(4)} USD`;
-      }
-
+      const message = await getPriceText(tokenInfo, amount);
       bot.sendMessage(chatId, message, opts);
       bot.deleteMessage(chatId, msg.message_id);
     } else {
