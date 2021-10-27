@@ -172,6 +172,12 @@ module.exports = async (bot) => {
                   url: `https://poocoin.app/tokens/${tokenInfo.token}`,
                 },
               ],
+              [
+                {
+                  text: "Contract",
+                  callback_data: `contract:${tokenInfo.token}`,
+                },
+              ],
             ],
           },
         };
