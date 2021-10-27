@@ -25,7 +25,7 @@ async function getPriceText(tokenInfo, amount) {
   const { data: coinData, token } = tokenInfo;
 
   const { usd, bnb } = await getPrice(token);
-  
+
   let message = `${coinData.name} (${
     coinData.symbol
   }) is currently trading at ${parseFloat(usd).toFixed(4)} USD`;
@@ -61,6 +61,12 @@ module.exports = async (bot) => {
               {
                 text: "📈 Charts 📈",
                 url: `https://poocoin.app/tokens/${tokenInfo.token}`,
+              },
+            ],
+            [
+              {
+                text: "Contract",
+                callback_data: `contract:${tokenInfo.token}`,
               },
             ],
           ],
@@ -118,6 +124,12 @@ module.exports = async (bot) => {
                 url: `https://poocoin.app/tokens/${tokenInfo.token}`,
               },
             ],
+            [
+              {
+                text: "Contract",
+                callback_data: `contract:${tokenInfo.token}`,
+              },
+            ],
           ],
         },
       };
@@ -133,6 +145,12 @@ module.exports = async (bot) => {
     const msg = callbackQuery.message;
 
     // Check if action is refresh
+    if (action.startsWith("contract:")) {
+      const coin = action.split(":")[1];
+      bot.sendMessage(msg.chat.id, coin, {
+        reply_to_message_id: msg.message_id,
+      });
+    }
     if (action.startsWith("refresh:")) {
       const coin = action.split(":")[1];
       const amount = action.split(":")[2];
