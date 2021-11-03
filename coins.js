@@ -40,7 +40,8 @@ async function getPriceText(tokenInfo, amount) {
 }
 
 module.exports = async (bot) => {
-  bot.onText(/\/d/, async (msg, match) => {
+  // Match exact word /coin
+  bot.onText(/^\/d$/i, async (msg, match) => {
     const chatId = msg.chat.id;
     const coin = match.input.split(" ")[1];
     const amount = match.input.split(" ")[2];
@@ -81,7 +82,7 @@ module.exports = async (bot) => {
   });
 
   // Add command to calculate arithmetical expressions
-  bot.onText(/\/a/, async (msg, match) => {
+  bot.onText(/^\/a$/i, async (msg, match) => {
     const chatId = msg.chat.id;
     let expression = match.input.split(" ")[1].replace(" ", "");
 
@@ -189,7 +190,7 @@ module.exports = async (bot) => {
     }
   });
 
-  bot.onText(/\/add_token/, async (msg, match) => {
+  bot.onText(/^\/add_token$/i, async (msg, match) => {
     const chatId = msg.chat.id;
     const args = match.input.split(" ")[1] || "";
     if (!args || args.split("|").length !== 3) {

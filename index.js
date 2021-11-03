@@ -129,7 +129,7 @@ const TelegramBot = require("node-telegram-bot-api");
 
  
 
-  bot.onText(/\/doge/, async (msg, match) => {
+  bot.onText(/^\/doge$/i, async (msg, match) => {
     const chatId = msg.chat.id;
 
     const { message, price } = await getMessage({
@@ -151,7 +151,7 @@ const TelegramBot = require("node-telegram-bot-api");
     bot.sendMessage(chatId, message, { reply_to_message_id: msg.message_id });
   });
 
-  bot.onText(/\/cardano/, async (msg, match) => {
+  bot.onText(/^\/cardano$/i, async (msg, match) => {
     const chatId = msg.chat.id;
     const { message, price } = await getMessage({
       hour: true,
@@ -200,6 +200,8 @@ const TelegramBot = require("node-telegram-bot-api");
   });
 
   require('./pvu')(bot)
+  require('./getFPVUPrice')(bot)
+
   require('./coins')(bot)
 
 })();
