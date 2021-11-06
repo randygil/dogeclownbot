@@ -718,7 +718,9 @@ async function getFPVUPrice() {
 async function getPriceText(amount) {
   const price = await getFPVUPrice();
 
-  let message = `FPVU (Plant Vs Undead) is currently trading at ${parseFloat(price).toFixed(4)} USD`;
+  let message = `FPVU (Plant Vs Undead) is currently trading at ${parseFloat(
+    price
+  ).toFixed(4)} USD`;
   const calculated = parseFloat(amount) * parseFloat(price);
   // If amount is number, calculate
   if (amount && !isNaN(amount)) {
@@ -760,31 +762,28 @@ module.exports = async (bot) => {
     const msg = callbackQuery.message;
     if (action.startsWith("updateFPVU:")) {
       const amount = action.split(":")[1];
-      const tokenInfo = getTokenBySymbol(coin);
-      if (tokenInfo) {
-        const priceText = await getPriceText(amount);
-        const opts = {
-          chat_id: msg.chat.id,
-          message_id: msg.message_id,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                {
-                  text: "🔄 Refresh 🔄",
-                  callback_data: `updateFPVU:${amount}`,
-                },
-                {
-                  text: "📈 Charts 📈",
-                  url: `https://info.factorychain.io/pair/0x1ad8210bcfa0a429d5880db79bc88574f1a1ae62`,
-                },
-              ],
+      const priceText = await getPriceText(amount);
+      const opts = {
+        chat_id: msg.chat.id,
+        message_id: msg.message_id,
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🔄 Refresh 🔄",
+                callback_data: `updateFPVU:${amount}`,
+              },
+              {
+                text: "📈 Charts 📈",
+                url: `https://info.factorychain.io/pair/0x1ad8210bcfa0a429d5880db79bc88574f1a1ae62`,
+              },
             ],
-          },
-        };
-        // If priceText is the same as the message text, don't send a new message
-        if (priceText !== msg.text) {
-          bot.editMessageText(priceText, opts);
-        }
+          ],
+        },
+      };
+      // If priceText is the same as the message text, don't send a new message
+      if (priceText !== msg.text) {
+        bot.editMessageText(priceText, opts);
       }
     }
   });
