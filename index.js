@@ -203,5 +203,6 @@ const TelegramBot = require("node-telegram-bot-api");
   require('./getFPVUPrice')(bot)
 
   require('./coins')(bot)
+  require('./nfs')(bot)
 
 })();
