@@ -1,7 +1,5 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
-const xpath = require("xpath");
-const dom = require("xmldom").DOMParser;
 async function getNinjaPrice() {
   const html = (await axios.get("https://market.ninjafantasy.io/index.php"))
     .data;
