@@ -1,5 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const { getPrice } = require("./tokenInfo");
+
 async function getNinjaPrice() {
   const html = (await axios.get("https://market.ninjafantasy.io/index.php"))
     .data;
@@ -8,6 +10,18 @@ async function getNinjaPrice() {
     "body > div > div.hero-main-dark > div > div > div > div.col-lg-6.col-content-otr > div > div:nth-child(3) > div > h3"
   ).text();
   return price;
+}
+
+async function getMessage() {
+  const ninjaPrice = await getNinjaPrice();
+  const { usd, bnb } = await getPrice(
+    "0x64815277c6caf24c1c2b55b11c78ef393237455c"
+  );
+  const calculated =
+    parseFloat(ninjaPrice.replace("NFS", "").replace(" ", "")) *
+    parseFloat(usd);
+  const text = `NFS Ninja price: ${ninjaPrice} (${calculated.toFixed(2)}$) `;
+  return text;
 }
 
 module.exports = async (bot) => {
@@ -29,8 +43,8 @@ module.exports = async (bot) => {
       },
     };
 
-    const ninjaPrice = await getNinjaPrice();
-    bot.sendMessage(msg.chat.id, `NFS Ninja price: ${ninjaPrice}`, opts);
+    const text = await getMessage();
+    bot.sendMessage(msg.chat.id, text, opts);
   });
 
   bot.on("callback_query", async function onCallbackQuery(callbackQuery) {
@@ -52,8 +66,8 @@ module.exports = async (bot) => {
       },
     };
     if (action === "refreshninjaprice") {
-      const ninjaPrice = await getNinjaPrice();
-      const text = `NFS Ninja price: ${ninjaPrice}`;
+      const text = await getMessage();
+
       if (text.trim() !== msg.text.trim()) {
         bot.editMessageText(text, opts);
       }
